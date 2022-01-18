@@ -16,23 +16,15 @@ class CPHInline
         countdownTimer.Stop();
     }
 
-    public void Dispose()
+    public bool Execute()
     {
-        countdownTimer.Dispose();
-    }
-
-    private void StopTimer(string message) 
-    {
-        // Set to Scene and Source of your text source
-        CPH.ObsSetGdiText("[NS] Countdown Timer", "[TS] Countdown Timer", message);
-        countdownTimer.Stop();
-    }
-
-    private void AddMinutes(int countdownMinutesToAdd)
-    {
-        int countdownSecondsToAdd = countdownMinutesToAdd * 60;
-        countdownTotalTimeInSeconds = countdownTotalTimeInSeconds + countdownSecondsToAdd;
-        countdownSecondsLeft = countdownSecondsLeft + countdownSecondsToAdd;
+        // Change countdownMinuteValue to initial length of stream in hours
+        var num = args["rawInput"];
+		int number = Convert.ToInt32(num);
+		int countdownMinuteValue = number;
+        countdownSecondsLeft = countdownMinuteValue * (60) + 1;
+        countdownTimer.Start();
+        return true;
     }
 
     public void OnTimedEvent(Object source, ElapsedEventArgs e)
@@ -43,6 +35,7 @@ class CPHInline
         if (countdownSecondsLeft == 0)
         {
             StopTimer("Time's up!");
+            countdownTimer.Stop();
         }
         else
         {
@@ -51,28 +44,41 @@ class CPHInline
         }
     }
 
-    public bool Execute()
+    public void Dispose()
     {
-        // Change countdownHourValue to initial length of stream in minutes
-        int countdownHourValue = 10;
-        countdownSecondsLeft = countdownHourValue * (60) + 1;
-        countdownTotalTimeInSeconds = countdownSecondsLeft;
-        countdownTimer.Start();
-        return true;
+        countdownTimer.Dispose();
     }
-	
+
+    private void StopTimer(string message)
+    {
+        // Set to Scene and Source of your text source
+        CPH.ObsSetGdiText("[NS] Countdown Timer", "[TS] Countdown Timer", message);
+        countdownTimer.Stop();
+    }
+
+    private void AddMinutes(int countdownMinutesToAdd)
+    {
+        int countdownSecondsToAdd = countdownMinutesToAdd * 60;
+        countdownSecondsLeft = countdownSecondsLeft + countdownSecondsToAdd;
+    }
+
     public bool Stop()
     {
-        StopTimer("Timer cancelled!");
-        countdownTimer.Stop();
-		return true;
+        StopTimer("Timer Cancelled!");
+        return true;
     }
-	
+
     public bool Reset()
     {
-        int countdownSecondsLeft = 0;
+        var num = args["rawInput"];
+		int number = Convert.ToInt32(num);
+		int countdownMinuteValue = number;
+        int countdownSecondsLeft = countdownMinuteValue * (60);
+        TimeSpan time = TimeSpan.FromSeconds(countdownSecondsLeft);
+        string countdownString = time.ToString(@"hh\:mm\:ss");
+        CPH.ObsSetGdiText("[NS] Countdown Timer", "[TS] Countdown Timer", countdownString);
         countdownTimer.Stop();
-		return true;
+        return true;
     }
 
     public bool Add1()
