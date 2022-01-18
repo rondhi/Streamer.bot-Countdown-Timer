@@ -6,7 +6,6 @@ class CPHInline
     public System.Timers.Timer countdownTimer;
     public int countdownSecondsLeft;
     public int countdownTotalTimeInSeconds;
-
     public void Init()
     {
         countdownTimer = new System.Timers.Timer(1000);
@@ -20,8 +19,8 @@ class CPHInline
     {
         // Change countdownMinuteValue to initial length of stream in hours
         var num = args["rawInput"];
-		int number = Convert.ToInt32(num);
-		int countdownMinuteValue = number;
+        int number = Convert.ToInt32(num);
+        int countdownMinuteValue = number;
         countdownSecondsLeft = countdownMinuteValue * (60) + 1;
         countdownTimer.Start();
         return true;
@@ -71,8 +70,8 @@ class CPHInline
     public bool Reset()
     {
         var num = args["rawInput"];
-		int number = Convert.ToInt32(num);
-		int countdownMinuteValue = number;
+        int number = Convert.ToInt32(num);
+        int countdownMinuteValue = number;
         int countdownSecondsLeft = countdownMinuteValue * (60);
         TimeSpan time = TimeSpan.FromSeconds(countdownSecondsLeft);
         string countdownString = time.ToString(@"hh\:mm\:ss");
