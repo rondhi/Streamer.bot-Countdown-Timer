@@ -6,7 +6,6 @@ class CPHInline
     public System.Timers.Timer countdownTimer;
     public int countdownSecondsLeft;
     public int countdownTotalTimeInSeconds;
-
     public void Init()
     {
         countdownTimer = new System.Timers.Timer(1000);
@@ -18,11 +17,11 @@ class CPHInline
 
     public bool Execute()
     {
-        // Change countdownMinuteValue to initial length of stream in hours
         var num = args["rawInput"];
-		int number = Convert.ToInt32(num);
-		int countdownMinuteValue = number;
+        int number = Convert.ToInt32(num);
+        int countdownMinuteValue = number;
         countdownSecondsLeft = countdownMinuteValue * (60) + 1;
+        CPH.SetGlobalVar("defaultMinuteValue", countdownMinuteValue, true);
         countdownTimer.Start();
         return true;
     }
@@ -35,7 +34,7 @@ class CPHInline
         if (countdownSecondsLeft == 0)
         {
             StopTimer("Time's up!");
-			CPH.RunAction("TimerDone");
+            CPH.RunAction("TimerDone");
         }
         else
         {
@@ -68,16 +67,26 @@ class CPHInline
         return true;
     }
 
-    public bool Reset()
+    public bool Set()
     {
         var num = args["rawInput"];
-		int number = Convert.ToInt32(num);
-		int countdownMinuteValue = number;
+        int number = Convert.ToInt32(num);
+        int countdownMinuteValue = number;
         int countdownSecondsLeft = countdownMinuteValue * (60);
+        CPH.SetGlobalVar("defaultMinuteValue", countdownMinuteValue, true);
         TimeSpan time = TimeSpan.FromSeconds(countdownSecondsLeft);
         string countdownString = time.ToString(@"hh\:mm\:ss");
         CPH.ObsSetGdiText("[NS] Countdown Timer", "[TS] Countdown Timer", countdownString);
         countdownTimer.Stop();
+        return true;
+    }
+
+    public bool Restart()
+    {
+        // Change countdownMinuteValue to initial length of stream in hours
+        int defaultMinuteValue = CPH.GetGlobalVar<int>("defaultMinuteValue", true);
+        countdownSecondsLeft = defaultMinuteValue * (60) + 1;
+        countdownTimer.Start();
         return true;
     }
 
