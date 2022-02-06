@@ -10,32 +10,33 @@ TlM0RR+LCAAAAAAABADtWllz4kgSft+I/Q+eft1VR5VKEqp5A8xtmOESoHE/qA4JGQmxnBYT8983JRna
 
 2. In OBS, add a scene called "[NS] Countdown Timer" and a Text (GDI+) source within that scene called "[TS] Countdown Timer". You can call [NS] Countdown Timer as a source in any scene you want to use the timer.
 
-# Commands to create in Streamer Bot:
+# Commands to create in Streamer Bot and which action to point them to
 
-Use !timer <number of minutes> to automatically start the timer. The number is saved and can be used to restart the timer.
-
-  !timer  --> TimerStart
+  !timer --> TimerStart
   
-Use !set <number of minutes> to set the timer, but not start it.
-
-  !set  --> TimerSet
-
-Start/Restart the timer using the same number you used in the !timer or !set command
+  !set --> TimerSet
 
   !restart  
 
-  !start    --> TimerRestart
-  
-Cancel the timer and changes the text to "TIMER CANCELLED!"
+  !start --> TimerRestart
 
-  !stop   --> TimerStop
+  !stop --> TimerStop
 
-Add minutes to the timer
+  !1 --> TimerAdd 01 Minute
 
-  !1  --> TimerAdd 01 Minute
-
-  !5--> TimerAdd 05 Minutes
+  !5 --> TimerAdd 05 Minutes
 
   !10 --> TimerAdd 10 Minutes
 
+# Usage
+  !timer <number of minutes> - will automatically start the countdown timer. The number is saved and can be used to restart the timer.
+
+  !set <number of minutes> - will set the timer on screen. The countdown is not started.
+
+  !start or !restart - will start/restart the timer using the same number you used in the !timer or !set command
+
+  !stop - will cancel the timer and changes the text to "TIMER CANCELLED!"
+
+  !1, !5, or !10 - will add minutes to the timer
+  
 The TimerDone action is called when the timer hits 0. Feel free to add whatever actions you want once the timer is done.
