@@ -1,11 +1,14 @@
+//In the references tab, right click under mscorlib.dll and "Add reference from file..."
+//Add System.dll as a reference
 using System;
 using System.Timers;
 
 class CPHInline
 {
     public System.Timers.Timer countdownTimer;
-    public int countdownSecondsLeft;
-    public int countdownTotalTimeInSeconds;
+    public int subathonSecondsLeft;
+    public int subathontotalTimeInSeconds;
+    public int subathonCapInSeconds;
     public void Init()
     {
         countdownTimer = new System.Timers.Timer(1000);
@@ -15,31 +18,32 @@ class CPHInline
         countdownTimer.Stop();
     }
 
-    public bool Execute()
+    public bool StartSubathon()
     {
-        var num = args["rawInput"];
-        int number = Convert.ToInt32(num);
-        int countdownMinuteValue = number;
-        countdownSecondsLeft = countdownMinuteValue * (60) + 1;
-        CPH.SetGlobalVar("defaultMinuteValue", countdownMinuteValue, true);
+        int maxHourValue = Convert.ToInt32(args["maxHourValue"]);
+        subathonCapInSeconds = maxHourValue * (3600);
+        int hourValue = Convert.ToInt32(args["hourValue"]);
+        subathonSecondsLeft = hourValue * (3600) + 1;
+        subathontotalTimeInSeconds = subathonSecondsLeft;
         countdownTimer.Start();
         return true;
     }
 
     public void OnTimedEvent(Object source, ElapsedEventArgs e)
     {
-        countdownSecondsLeft--;
-        TimeSpan time = TimeSpan.FromSeconds(countdownSecondsLeft);
+        subathonSecondsLeft--;
+        TimeSpan time = TimeSpan.FromSeconds(subathonSecondsLeft);
         string countdownString = time.ToString(@"hh\:mm\:ss");
-        if (countdownSecondsLeft == 0)
+        if (subathonSecondsLeft == 0)
         {
-            StopTimer("Time's up!");
-            CPH.RunAction("TimerDone");
+            StopSubathon("Subathon Complete!");
+            CPH.RunAction("Subathon Done Action");
         }
         else
         {
-            // Set to Scene and Source of your text source
-            CPH.ObsSetGdiText("[NS] Countdown Timer", "[TS] Countdown Timer", countdownString);
+            string subathonScene = CPH.GetGlobalVar<string>("subathonScene", true);
+            string subathonSource = CPH.GetGlobalVar<string>("subathonSource", true);
+            CPH.ObsSetGdiText(subathonScene, subathonSource, countdownString);
         }
     }
 
@@ -48,69 +52,60 @@ class CPHInline
         countdownTimer.Dispose();
     }
 
-    private void StopTimer(string message)
+    private void StopSubathon(string message)
     {
         // Set to Scene and Source of your text source
-        CPH.ObsSetGdiText("[NS] Countdown Timer", "[TS] Countdown Timer", message);
+        string subathonScene = CPH.GetGlobalVar<string>("subathonScene", true);
+        string subathonSource = CPH.GetGlobalVar<string>("subathonSource", true);
+        CPH.ObsSetGdiText(subathonScene, subathonSource, message);
         countdownTimer.Stop();
     }
 
-    private void AddMinutes(int countdownMinutesToAdd)
+    private void AddMinutes(int minutesToAdd)
     {
-        int countdownSecondsToAdd = countdownMinutesToAdd * 60;
-        countdownSecondsLeft = countdownSecondsLeft + countdownSecondsToAdd;
+        int secondsToAdd = minutesToAdd * 60;
+        if ((subathontotalTimeInSeconds + secondsToAdd) < subathonCapInSeconds)
+        {
+            subathontotalTimeInSeconds = subathontotalTimeInSeconds + secondsToAdd;
+            subathonSecondsLeft = subathonSecondsLeft + secondsToAdd;
+            if (minutesToAdd == 1)
+            {
+                string message = minutesToAdd + " minute has been added to the Subathon";
+                CPH.SendMessage(message, true);
+            }
+            else
+            {
+                string message = minutesToAdd + " minutes has been added to the Subathon";
+                CPH.SendMessage(message, true);
+            }
+        }
+        else
+        {
+            subathonSecondsLeft = subathonSecondsLeft + (subathonCapInSeconds - subathontotalTimeInSeconds);
+            subathontotalTimeInSeconds = subathonCapInSeconds;
+            CPH.SendMessage("We've reached the sub-a-thon limit! No more time will be added.", true);
+        }
     }
 
     public bool Stop()
     {
-        StopTimer("Timer Cancelled!");
+        StopSubathon("Sub-a-thon cancelled!");
         return true;
     }
 
-    public bool Set()
+    public bool AddTime()
     {
-        var num = args["rawInput"];
-        int number = Convert.ToInt32(num);
-        int countdownMinuteValue = number;
-        int countdownSecondsLeft = countdownMinuteValue * (60);
-        CPH.SetGlobalVar("defaultMinuteValue", countdownMinuteValue, true);
-        TimeSpan time = TimeSpan.FromSeconds(countdownSecondsLeft);
-        string countdownString = time.ToString(@"hh\:mm\:ss");
-        CPH.ObsSetGdiText("[NS] Countdown Timer", "[TS] Countdown Timer", countdownString);
-        countdownTimer.Stop();
+        int minuteValue = Convert.ToInt32(args["minutesToAdd"]);
+        AddMinutes(minuteValue);
         return true;
     }
 
-    public bool Restart()
+    public bool Cheers()
     {
-        // Change countdownMinuteValue to initial length of stream in hours
-        int defaultMinuteValue = CPH.GetGlobalVar<int>("defaultMinuteValue", true);
-        countdownSecondsLeft = defaultMinuteValue * (60) + 1;
-        countdownTimer.Start();
-        return true;
-    }
-
-    public bool Add1()
-    {
-        // Change countdownMinuteValue to minutes to add to the timer
-        int countdownMinuteValue = 1;
-        AddMinutes(countdownMinuteValue);
-        return true;
-    }
-
-    public bool Add5()
-    {
-        // Change countdownMinuteValue to minutes to add to the timer
-        int countdownMinuteValue = 5;
-        AddMinutes(countdownMinuteValue);
-        return true;
-    }
-
-    public bool Add10()
-    {
-        // Change countdownMinuteValue to minutes to add to the timer
-        int countdownMinuteValue = 10;
-        AddMinutes(countdownMinuteValue);
+        double bitsGiven = Convert.ToDouble(args["bits"]);
+        int bitsDivide = Convert.ToInt32(args["bitsDivide"]);
+        int bitsHundred = Convert.ToInt32(Math.Floor(bitsGiven / bitsDivide));
+        AddMinutes(bitsHundred);
         return true;
     }
 }
