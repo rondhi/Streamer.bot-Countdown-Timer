@@ -1,3 +1,5 @@
+//In references tab >  rightclick under mscorlib.dll > "Add reference from file..."
+//Add "System.dll" as a reference
 using System;
 using System.Timers;
 
