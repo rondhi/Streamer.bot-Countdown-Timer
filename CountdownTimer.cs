@@ -17,13 +17,11 @@ class CPHInline
         countdownTimer.Stop();
     }
 
-    public bool Execute()
+    public bool StartTimer()
     {
-        var num = args["rawInput"];
-        int number = Convert.ToInt32(num);
-        int countdownMinuteValue = number;
-        countdownSecondsLeft = countdownMinuteValue * (60) + 1;
-        CPH.SetGlobalVar("defaultMinuteValue", countdownMinuteValue, true);
+        double countdownMinutesToAdd = Convert.ToDouble(args["rawInput"]);
+        CPH.SetGlobalVar("defaultMinuteValue", countdownMinutesToAdd, true);
+        countdownSecondsLeft = Convert.ToInt32(Math.Floor((countdownMinutesToAdd * 60) + 1));
         countdownTimer.Start();
         return true;
     }
@@ -32,11 +30,12 @@ class CPHInline
     {
         countdownSecondsLeft--;
         TimeSpan time = TimeSpan.FromSeconds(countdownSecondsLeft);
-        string countdownString = time.ToString(@"hh\:mm\:ss");
+        //string countdownString = time.ToString(@"hh\:mm\:ss");
+        string countdownString = string.Format("{0}:{1}", (int)time.TotalMinutes, time.ToString("ss"));
         if (countdownSecondsLeft == 0)
         {
             StopTimer("Time's up!");
-            CPH.RunAction("TimerDone");
+            CPH.RunAction("Timer Done");
         }
         else
         {
@@ -57,9 +56,9 @@ class CPHInline
         countdownTimer.Stop();
     }
 
-    private void AddMinutes(int countdownMinutesToAdd)
+    private void AddMinutes(double countdownMinutesToAdd)
     {
-        int countdownSecondsToAdd = countdownMinutesToAdd * 60;
+        int countdownSecondsToAdd = Convert.ToInt32(Math.Floor(countdownMinutesToAdd * 60));
         countdownSecondsLeft = countdownSecondsLeft + countdownSecondsToAdd;
     }
 
@@ -71,13 +70,12 @@ class CPHInline
 
     public bool Set()
     {
-        var num = args["rawInput"];
-        int number = Convert.ToInt32(num);
-        int countdownMinuteValue = number;
-        int countdownSecondsLeft = countdownMinuteValue * (60);
-        CPH.SetGlobalVar("defaultMinuteValue", countdownMinuteValue, true);
+        double countdownMinutesToAdd = Convert.ToDouble(args["rawInput"]);
+        CPH.SetGlobalVar("defaultMinuteValue", countdownMinutesToAdd, true);
+        countdownSecondsLeft = Convert.ToInt32(Math.Floor(countdownMinutesToAdd * 60));
         TimeSpan time = TimeSpan.FromSeconds(countdownSecondsLeft);
-        string countdownString = time.ToString(@"hh\:mm\:ss");
+        //string countdownString = time.ToString(@"hh\:mm\:ss");
+        string countdownString = string.Format("{0}:{1}", (int)time.TotalMinutes, time.ToString("ss"));
         CPH.ObsSetGdiText("[NS] Countdown Timer", "[TS] Countdown Timer", countdownString);
         countdownTimer.Stop();
         return true;
@@ -86,32 +84,15 @@ class CPHInline
     public bool Restart()
     {
         // Change countdownMinuteValue to initial length of stream in hours
-        int defaultMinuteValue = CPH.GetGlobalVar<int>("defaultMinuteValue", true);
-        countdownSecondsLeft = defaultMinuteValue * (60) + 1;
+        double defaultMinuteValue = CPH.GetGlobalVar<double>("defaultMinuteValue", true);
+        countdownSecondsLeft = Convert.ToInt32(Math.Floor((defaultMinuteValue * 60) + 1));
         countdownTimer.Start();
         return true;
     }
 
-    public bool Add1()
+    public bool AddX()
     {
-        // Change countdownMinuteValue to minutes to add to the timer
-        int countdownMinuteValue = 1;
-        AddMinutes(countdownMinuteValue);
-        return true;
-    }
-
-    public bool Add5()
-    {
-        // Change countdownMinuteValue to minutes to add to the timer
-        int countdownMinuteValue = 5;
-        AddMinutes(countdownMinuteValue);
-        return true;
-    }
-
-    public bool Add10()
-    {
-        // Change countdownMinuteValue to minutes to add to the timer
-        int countdownMinuteValue = 10;
+        double countdownMinuteValue = Convert.ToDouble(args["rawInput"]);
         AddMinutes(countdownMinuteValue);
         return true;
     }
